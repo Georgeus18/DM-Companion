@@ -12,6 +12,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true);
     fetchMonsters()
       .then((data) => {
         setMonsters(data);
@@ -53,7 +54,9 @@ function App() {
         {loading && !selectedMonster ? (
           <div className="loading">Loading monsters...</div>
         ) : selectedMonster ? (
-          <MonsterDetail monster={selectedMonster} />
+          <div className={loading ? 'loading-overlay' : ''}>
+            <MonsterDetail monster={selectedMonster} />
+          </div>
         ) : (
           <div className="empty-state">
             <h2>Select a monster to view details</h2>

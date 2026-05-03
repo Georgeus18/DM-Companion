@@ -1,14 +1,11 @@
 const BASE_URL = 'https://www.dnd5eapi.co/api/2014';
+const GRAPHQL_URL = 'https://www.dnd5eapi.co/graphql';
 
 export interface MonsterSummary {
   index: string;
   name: string;
-  url: string;
-}
-
-export interface MonsterListResponse {
-  count: number;
-  results: MonsterSummary[];
+  challenge_rating: number;
+  type: string;
 }
 
 export interface MonsterDetail {
@@ -39,10 +36,26 @@ export interface MonsterDetail {
 }
 
 export async function fetchMonsters(): Promise<MonsterSummary[]> {
-  const response = await fetch(`${BASE_URL}/monsters`);
-  if (!response.ok) throw new Error('Failed to fetch monsters');
-  const data: MonsterListResponse = await response.json();
-  return data.results;
+  const query = `
+    query {
+      monsters(limit: 500) {
+        index
+        name
+        challenge_rating
+        type
+      }
+    }
+  `;
+
+  const response = await fetch(GRAPHQL_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!response.ok) throw new Error('Failed to fetch monsters from GraphQL');
+  const result = await response.json();
+  return result.data.monsters;
 }
 
 export async function fetchMonsterDetail(index: string): Promise<MonsterDetail> {
