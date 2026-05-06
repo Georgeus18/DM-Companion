@@ -35,6 +35,12 @@ export interface MonsterDetail {
   legendary_actions?: { name: string; desc: string }[];
 }
 
+export interface ReferenceItem {
+  index: string;
+  name: string;
+  url: string;
+}
+
 export async function fetchMonsters(): Promise<MonsterSummary[]> {
   const query = `
     query {
@@ -62,4 +68,22 @@ export async function fetchMonsterDetail(index: string): Promise<MonsterDetail> 
   const response = await fetch(`${BASE_URL}/monsters/${index}`);
   if (!response.ok) throw new Error(`Failed to fetch monster: ${index}`);
   return response.json();
+}
+
+export async function fetchClasses(): Promise<ReferenceItem[]> {
+  const response = await fetch(`${BASE_URL}/classes`);
+  const data = await response.json();
+  return data.results;
+}
+
+export async function fetchRaces(): Promise<ReferenceItem[]> {
+  const response = await fetch(`${BASE_URL}/races`);
+  const data = await response.json();
+  return data.results;
+}
+
+export async function fetchAlignments(): Promise<ReferenceItem[]> {
+  const response = await fetch(`${BASE_URL}/alignments`);
+  const data = await response.json();
+  return data.results;
 }
