@@ -46,15 +46,11 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
   const availableSpells = useMemo(() => {
     if (!formData.class) return [];
     const classIndex = formData.class.toLowerCase();
-    // Simplified rule: max spell level is ceil(character level / 2)
-    const maxSpellLevel = Math.ceil(formData.level / 2);
     
-    return allSpells.filter(spell => {
-      const isForClass = spell.classes.some(c => c.index === classIndex);
-      const isCorrectLevel = spell.level <= maxSpellLevel;
-      return isForClass && isCorrectLevel;
-    });
-  }, [allSpells, formData.class, formData.level]);
+    return allSpells.filter(spell => 
+      spell.classes.some(c => c.index === classIndex)
+    );
+  }, [allSpells, formData.class]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
