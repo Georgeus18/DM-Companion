@@ -196,8 +196,9 @@ body {
 
 .character-sheet {
   width: 100%;
-  max-width: 950px; /* Centered with margins for "sheet" feel */
-  height: 90vh;
+  max-width: 900px;
+  max-height: 90vh;
+  height: auto;
   background-color: var(--bg-dark);
   border: 2px solid var(--accent);
   border-radius: 12px;
@@ -210,7 +211,8 @@ body {
 .sheet-header {
   padding: 25px;
   background: var(--bg-sidebar);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--accent);
+  flex-shrink: 0;
 }
 
 .header-top {
@@ -225,228 +227,247 @@ body {
   border: none;
   border-bottom: 2px solid var(--accent);
   color: var(--accent);
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 2.2rem;
+  font-weight: 900;
   width: 60%;
   outline: none;
 }
 
-.header-actions {
-  display: flex;
-  gap: 15px;
-}
-
-.btn-save {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--accent);
-  color: black;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-cancel {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: none;
-  padding: 8px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
 .header-meta {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   flex-wrap: wrap;
-}
-
-.header-meta select {
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  outline: none;
-  cursor: pointer;
-  min-width: 140px;
-}
-
-.header-meta select:hover {
-  border-color: var(--accent);
-}
-
-.input-with-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border);
-  padding: 0 12px;
-  border-radius: 4px;
-}
-
-.input-with-label label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  font-weight: bold;
-}
-
-.input-with-label input {
-  background: transparent !important;
-  border: none !important;
-  width: 40px !important;
-  padding: 8px 0 !important;
-  text-align: center;
 }
 
 .sheet-body {
   flex: 1;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: 220px 1fr;
-  padding: 25px;
-  gap: 30px;
+  grid-template-columns: 200px 1fr;
+  padding: 30px;
+  gap: 40px;
 }
 
-.abilities-grid {
+/* Ability Score Styling - Vertical & Prominent */
+.abilities-col {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
 }
 
-.ability-field {
+.ability-score-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(212, 175, 55, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
+  background: rgba(212, 175, 55, 0.03);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 15px 10px;
+  transition: border-color 0.2s;
 }
 
-.ability-field label {
-  font-size: 0.7rem;
+.ability-score-box:focus-within {
+  border-color: var(--accent);
+}
+
+.ability-score-box label {
+  font-size: 0.75rem;
   text-transform: uppercase;
   color: var(--accent);
-  font-weight: bold;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
 }
 
-.ability-field input {
-  width: 50px;
-  text-align: center;
-  font-size: 1.5rem;
+.ability-score-box input {
+  width: 70px;
   background: transparent;
   border: none;
-  color: white;
-  font-weight: bold;
+  color: var(--text-primary);
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
 }
 
-.mod-display {
-  font-size: 0.9rem;
+.ability-score-box .mod-display {
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--text-secondary);
+  margin-top: 5px;
+  background: rgba(0,0,0,0.3);
+  padding: 2px 10px;
+  border-radius: 20px;
 }
 
-.derived-stats {
-  margin-top: 20px;
+/* Main Content Area */
+.main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.combat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.combat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.combat-box.accent-border {
+  border-color: var(--accent);
+}
+
+.combat-box label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 800;
+  margin-top: 5px;
+}
+
+.combat-box input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+}
+
+.hp-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.hp-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.hp-inputs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.hp-inputs input {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid var(--accent);
+  color: var(--text-primary);
+  font-size: 2.5rem;
+  font-weight: 900;
+  width: 80px;
+  text-align: center;
+  outline: none;
+}
+
+.hp-divider {
+  font-size: 2rem;
+  color: var(--border);
+}
+
+.derived-stats-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+
+.textarea-group {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.derived-field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.derived-field label {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
+.textarea-group label {
+  font-size: 0.9rem;
   text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 900;
+  letter-spacing: 0.05em;
 }
 
-.derived-field input {
-  background: rgba(255, 255, 255, 0.05);
+.textarea-group textarea {
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
-  color: white;
-  padding: 8px;
-  border-radius: 4px;
-  text-align: center;
-  font-weight: bold;
+  color: var(--text-primary);
+  padding: 15px;
+  border-radius: 8px;
+  min-height: 120px;
+  line-height: 1.6;
+  resize: vertical;
 }
 
-.combat-stats {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 25px;
+.currency-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
-.combat-stat {
-  flex: 1;
+.currency-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: rgba(0,0,0,0.2);
-  padding: 15px;
-  border-radius: 8px;
   border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px;
 }
 
-.combat-stat label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: 5px 0;
+.currency-item label {
+  font-size: 0.6rem !important;
+  color: var(--text-secondary) !important;
+  margin: 0 !important;
 }
 
-.combat-stat input {
-  width: 60px;
-  text-align: center;
-  font-size: 1.2rem;
+.currency-item input {
+  width: 100%;
   background: transparent;
   border: none;
-  color: white;
-  font-weight: bold;
-}
-
-.textarea-group {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.textarea-group label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
   color: var(--accent);
+  font-size: 0.9rem;
   font-weight: bold;
-  letter-spacing: 1px;
-}
-
-.textarea-group textarea {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  color: white;
-  padding: 12px;
-  border-radius: 6px;
-  min-height: 80px;
-  resize: vertical;
-  font-family: inherit;
-  line-height: 1.5;
-}
-
-.textarea-group textarea:focus {
-  border-color: var(--accent);
+  text-align: center;
   outline: none;
 }
+
+@media (max-width: 768px) {
+  .sheet-body {
+    grid-template-columns: 1fr;
+  }
+  .abilities-col {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+
 
 .app-header p {
   margin: 5px 0 0;

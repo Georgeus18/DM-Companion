@@ -25,6 +25,14 @@ export interface Character {
   passivePerception: number;
   proficiencies: string[];
   equipment: string;
+  currency: {
+    cp: number;
+    sp: number;
+    ep: number;
+    gp: number;
+    pp: number;
+  };
+  spells: string;
   notes: string;
   createdAt: number;
 }
