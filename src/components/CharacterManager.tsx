@@ -14,6 +14,7 @@ export const CharacterManager: React.FC = () => {
       id: Date.now().toString(),
       name: '',
       class: '',
+      subclass: '',
       level: 1,
       race: '',
       alignment: '',

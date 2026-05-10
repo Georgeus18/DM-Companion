@@ -11,6 +11,7 @@ export interface Character {
   id: string;
   name: string;
   class: string;
+  subclass: string;
   level: number;
   race: string;
   alignment: string;

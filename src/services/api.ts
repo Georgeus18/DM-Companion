@@ -169,6 +169,49 @@ export async function fetchSpellDetail(index: string): Promise<SpellDetail> {
   return response.json();
 }
 
+export interface SpellInteractive extends SpellSummary {
+  classes: { index: string }[];
+}
+
+export async function fetchInteractiveSpells(): Promise<SpellInteractive[]> {
+  const query = `
+    query {
+      spells(limit: 1000) {
+        index
+        name
+        level
+        classes {
+          index
+        }
+      }
+    }
+  `;
+
+  const response = await fetch(GRAPHQL_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!response.ok) return [];
+  const result = await response.json();
+  return result.data.spells;
+}
+
+export async function fetchSubclasses(classIndex: string): Promise<ReferenceItem[]> {
+  const response = await fetch(`${BASE_URL}/classes/${classIndex.toLowerCase()}/subclasses`);
+  if (!response.ok) return [];
+  const data = await response.json();
+  return data.results;
+}
+
+export async function fetchSpellsByClass(classIndex: string): Promise<SpellSummary[]> {
+  const response = await fetch(`${BASE_URL}/classes/${classIndex.toLowerCase()}/spells`);
+  if (!response.ok) return [];
+  const data = await response.json();
+  return data.results;
+}
+
 export async function fetchClasses(): Promise<ReferenceItem[]> {
   const response = await fetch(`${BASE_URL}/classes`);
   const data = await response.json();

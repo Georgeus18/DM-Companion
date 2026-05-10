@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { calculateModifier, calculateProficiencyBonus } from '../types/character';
 import type { Character } from '../types/character';
-import { fetchClasses, fetchRaces, fetchAlignments } from '../services/api';
-import type { ReferenceItem } from '../services/api';
+import { fetchClasses, fetchRaces, fetchAlignments, fetchSubclasses, fetchInteractiveSpells } from '../services/api';
+import type { ReferenceItem, SpellInteractive } from '../services/api';
 import { Shield, Heart, Zap, Save, X } from 'lucide-react';
 
 interface CharacterSheetProps {
@@ -16,20 +16,45 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
   const [classes, setClasses] = useState<ReferenceItem[]>([]);
   const [races, setRaces] = useState<ReferenceItem[]>([]);
   const [alignments, setAlignments] = useState<ReferenceItem[]>([]);
+  const [subclasses, setSubclasses] = useState<ReferenceItem[]>([]);
+  const [allSpells, setAllSpells] = useState<SpellInteractive[]>([]);
 
   useEffect(() => {
     setFormData(character);
   }, [character]);
 
   useEffect(() => {
-    Promise.all([fetchClasses(), fetchRaces(), fetchAlignments()])
-      .then(([classesData, racesData, alignmentsData]) => {
+    Promise.all([fetchClasses(), fetchRaces(), fetchAlignments(), fetchInteractiveSpells()])
+      .then(([classesData, racesData, alignmentsData, spellsData]) => {
         setClasses(classesData);
         setRaces(racesData);
         setAlignments(alignmentsData);
+        setAllSpells(spellsData);
       })
       .catch(err => console.error('Failed to fetch reference data', err));
   }, []);
+
+  useEffect(() => {
+    if (formData.class) {
+      fetchSubclasses(formData.class).then(setSubclasses);
+      setFormData(prev => ({ ...prev, subclass: '' })); // Reset subclass on class change
+    } else {
+      setSubclasses([]);
+    }
+  }, [formData.class]);
+
+  const availableSpells = useMemo(() => {
+    if (!formData.class) return [];
+    const classIndex = formData.class.toLowerCase();
+    // Simplified rule: max spell level is ceil(character level / 2)
+    const maxSpellLevel = Math.ceil(formData.level / 2);
+    
+    return allSpells.filter(spell => {
+      const isForClass = spell.classes.some(c => c.index === classIndex);
+      const isCorrectLevel = spell.level <= maxSpellLevel;
+      return isForClass && isCorrectLevel;
+    });
+  }, [allSpells, formData.class, formData.level]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -52,6 +77,25 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
         [name]: e.target.type === 'number' ? parseInt(value) || 0 : value
       }));
     }
+  };
+
+  const handleAddSpell = (spellName: string) => {
+    if (!spellName) return;
+    const currentSpells = formData.spells ? formData.spells.split('\n').filter(s => s.trim()) : [];
+    if (!currentSpells.includes(spellName)) {
+      setFormData(prev => ({
+        ...prev,
+        spells: [...currentSpells, spellName].join('\n')
+      }));
+    }
+  };
+
+  const handleRemoveSpell = (spellName: string) => {
+    const currentSpells = formData.spells.split('\n').filter(s => s.trim());
+    setFormData(prev => ({
+      ...prev,
+      spells: currentSpells.filter(s => s !== spellName).join('\n')
+    }));
   };
 
   useEffect(() => {
@@ -110,10 +154,17 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
             </div>
           </div>
           <div className="header-meta">
-            <select name="class" value={formData.class} onChange={handleChange}>
+            <select name="class" value={formData.class} onChange={handleChange} required>
               <option value="">Select Class</option>
               {classes.map(c => <option key={c.index} value={c.name}>{c.name}</option>)}
             </select>
+
+            {formData.level >= 3 && subclasses.length > 0 && (
+              <select name="subclass" value={formData.subclass} onChange={handleChange}>
+                <option value="">Select Subclass</option>
+                {subclasses.map(s => <option key={s.index} value={s.name}>{s.name}</option>)}
+              </select>
+            )}
             
             <div className="input-with-label">
               <label>Level</label>
@@ -133,7 +184,6 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
         </header>
 
         <div className="sheet-body">
-          {/* Column 1: Abilities */}
           <div className="abilities-col">
             {renderAbility('Strength', 'strength')}
             {renderAbility('Dexterity', 'dexterity')}
@@ -143,7 +193,6 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
             {renderAbility('Charisma', 'charisma')}
           </div>
 
-          {/* Column 2: The rest */}
           <div className="main-col">
             <div className="combat-row">
               <div className="combat-box accent-border">
@@ -173,7 +222,6 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
                   name="hpCurrent" 
                   value={formData.hpCurrent} 
                   onChange={handleChange} 
-                  title="Current HP"
                 />
                 <span className="hp-divider">/</span>
                 <input 
@@ -181,7 +229,6 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
                   name="hpMax" 
                   value={formData.hpMax} 
                   onChange={handleChange} 
-                  title="Max HP"
                 />
               </div>
             </div>
@@ -210,33 +257,50 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
             <div className="textarea-group">
               <label>Equipment & Inventory</label>
               <div className="currency-grid">
-                <div className="currency-item">
-                  <label>CP</label>
-                  <input type="number" name="currency.cp" value={formData.currency.cp} onChange={handleChange} />
-                </div>
-                <div className="currency-item">
-                  <label>SP</label>
-                  <input type="number" name="currency.sp" value={formData.currency.sp} onChange={handleChange} />
-                </div>
-                <div className="currency-item">
-                  <label>EP</label>
-                  <input type="number" name="currency.ep" value={formData.currency.ep} onChange={handleChange} />
-                </div>
-                <div className="currency-item">
-                  <label>GP</label>
-                  <input type="number" name="currency.gp" value={formData.currency.gp} onChange={handleChange} />
-                </div>
-                <div className="currency-item">
-                  <label>PP</label>
-                  <input type="number" name="currency.pp" value={formData.currency.pp} onChange={handleChange} />
-                </div>
+                {['cp', 'sp', 'ep', 'gp', 'pp'].map(curr => (
+                  <div className="currency-item" key={curr}>
+                    <label>{curr.toUpperCase()}</label>
+                    <input 
+                      type="number" 
+                      name={`currency.${curr}`} 
+                      value={(formData.currency as any)[curr]} 
+                      onChange={handleChange} 
+                    />
+                  </div>
+                ))}
               </div>
               <textarea name="equipment" value={formData.equipment} onChange={handleChange} placeholder="Weapons, armor, and gear..." />
             </div>
 
             <div className="textarea-group">
               <label>Cantrips & Spells</label>
-              <textarea name="spells" value={formData.spells} onChange={handleChange} placeholder="Your known cantrips and prepared spells..." />
+              <div className="spell-management">
+                <div className="spell-picker">
+                  <select onChange={(e) => handleAddSpell(e.target.value)} value="">
+                    <option value="">+ Add Spell (Filtered by Class/Level)</option>
+                    {availableSpells.map(s => (
+                      <option key={s.index} value={s.name}>
+                        {s.name} (Lvl {s.level})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="selected-spells">
+                  {formData.spells.split('\n').filter(s => s.trim()).map(spell => (
+                    <div key={spell} className="spell-tag">
+                      <span>{spell}</span>
+                      <button type="button" onClick={() => handleRemoveSpell(spell)}>
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                  {(!formData.spells || formData.spells.trim() === '') && (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                      No spells selected. Choose a class and level to see options.
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="textarea-group">
