@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
-import { fetchMonsters, fetchMonsterDetail } from './services/api';
-import type { MonsterSummary, MonsterDetail as MonsterDetailType } from './services/api';
+import { fetchMonsters, fetchMonsterDetail, fetchEquipment, fetchEquipmentDetail } from './services/api';
+import type { MonsterSummary, MonsterDetail as MonsterDetailType, EquipmentSummary, EquipmentDetail as EquipmentDetailType } from './services/api';
 import { MonsterList } from './components/MonsterList';
 import { MonsterDetail } from './components/MonsterDetail';
+import { EquipmentList } from './components/EquipmentList';
+import { EquipmentDetail } from './components/EquipmentDetail';
 import { CharacterManager } from './components/CharacterManager';
-import { BookOpen, Users } from 'lucide-react';
+import { BookOpen, Users, Sword } from 'lucide-react';
 import './App.css';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'bestiary' | 'characters'>('bestiary');
+  const [activeTab, setActiveTab] = useState<'bestiary' | 'characters' | 'armory'>('bestiary');
   const [monsters, setMonsters] = useState<MonsterSummary[]>([]);
   const [selectedMonster, setSelectedMonster] = useState<MonsterDetailType | null>(null);
+  const [equipment, setEquipment] = useState<EquipmentSummary[]>([]);
+  const [selectedEquipment, setSelectedEquipment] = useState<EquipmentDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +31,20 @@ function App() {
           setLoading(false);
         });
     }
-  }, [activeTab, monsters.length]);
+
+    if (activeTab === 'armory' && equipment.length === 0) {
+      setLoading(true);
+      fetchEquipment()
+        .then((data) => {
+          setEquipment(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setLoading(false);
+        });
+    }
+  }, [activeTab, monsters.length, equipment.length]);
 
   const handleSelectMonster = async (index: string) => {
     try {
@@ -36,7 +53,21 @@ function App() {
       setSelectedMonster(detail);
       setLoading(false);
     } catch (err) {
+      console.error(err);
       setError('Failed to load monster details');
+      setLoading(false);
+    }
+  };
+
+  const handleSelectEquipment = async (index: string) => {
+    try {
+      setLoading(true);
+      const detail = await fetchEquipmentDetail(index);
+      setSelectedEquipment(detail);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load equipment details');
       setLoading(false);
     }
   };
@@ -57,6 +88,13 @@ function App() {
             <span>Bestiary</span>
           </button>
           <button 
+            className={`nav-item ${activeTab === 'armory' ? 'active' : ''}`}
+            onClick={() => setActiveTab('armory')}
+          >
+            <Sword size={20} />
+            <span>Armory</span>
+          </button>
+          <button 
             className={`nav-item ${activeTab === 'characters' ? 'active' : ''}`}
             onClick={() => setActiveTab('characters')}
           >
@@ -70,6 +108,14 @@ function App() {
             monsters={monsters} 
             onSelect={handleSelectMonster} 
             selectedIndex={selectedMonster?.index}
+          />
+        )}
+
+        {activeTab === 'armory' && (
+          <EquipmentList 
+            equipment={equipment} 
+            onSelect={handleSelectEquipment} 
+            selectedIndex={selectedEquipment?.index}
           />
         )}
       </aside>
@@ -88,6 +134,22 @@ function App() {
               <div className="empty-state">
                 <h2>Select a monster to view details</h2>
                 <p>Use the list on the left to browse the SRD monsters.</p>
+              </div>
+            )}
+          </>
+        ) : activeTab === 'armory' ? (
+          <>
+            {error && <div className="error-message">{error}</div>}
+            {loading && !selectedEquipment ? (
+              <div className="loading">Loading armory...</div>
+            ) : selectedEquipment ? (
+              <div className={loading ? 'loading-overlay' : ''}>
+                <EquipmentDetail item={selectedEquipment} />
+              </div>
+            ) : (
+              <div className="empty-state">
+                <h2>Select an item to view details</h2>
+                <p>Use the list on the left to browse the SRD equipment.</p>
               </div>
             )}
           </>

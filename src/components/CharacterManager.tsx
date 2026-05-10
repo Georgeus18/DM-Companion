@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { INITIAL_ABILITY_SCORES } from '../types/character';
 import type { Character } from '../types/character';
 import { loadCharacters, addCharacter, updateCharacter, deleteCharacter } from '../services/storage';
@@ -6,12 +6,8 @@ import { CharacterSheet } from './CharacterSheet';
 import { Plus, User, Edit2, Trash2 } from 'lucide-react';
 
 export const CharacterManager: React.FC = () => {
-  const [characters, setCharacters] = useState<Character[]>([]);
+  const [characters, setCharacters] = useState<Character[]>(() => loadCharacters());
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
-
-  useEffect(() => {
-    setCharacters(loadCharacters());
-  }, []);
 
   const handleCreateNew = () => {
     const newChar: Character = {

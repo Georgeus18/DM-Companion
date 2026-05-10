@@ -35,14 +35,17 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
     const { name, value } = e.target;
     
     if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...(prev as any)[parent],
-          [child]: parseInt(value) || 0
-        }
-      }));
+      const [parent, child] = name.split('.') as [keyof Character, string];
+      const parentValue = formData[parent];
+      if (typeof parentValue === 'object' && parentValue !== null && !Array.isArray(parentValue)) {
+        setFormData(prev => ({
+          ...prev,
+          [parent]: {
+            ...parentValue,
+            [child]: parseInt(value) || 0
+          }
+        }));
+      }
     } else {
       setFormData(prev => ({
         ...prev,

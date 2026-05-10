@@ -35,6 +35,34 @@ export interface MonsterDetail {
   legendary_actions?: { name: string; desc: string }[];
 }
 
+export interface EquipmentSummary {
+  index: string;
+  name: string;
+  equipment_category: { name: string; index: string };
+}
+
+export interface EquipmentDetail {
+  index: string;
+  name: string;
+  equipment_category: { name: string; index: string };
+  weapon_category?: string;
+  weapon_range?: string;
+  category_range?: string;
+  cost: { quantity: number; unit: string };
+  damage?: { damage_dice: string; damage_type: { name: string } };
+  range?: { normal: number; long: number | null };
+  weight?: number;
+  properties?: { name: string }[];
+  armor_category?: string;
+  armor_class?: { base: number; dex_bonus: boolean; max_bonus: number | null };
+  str_minimum?: number;
+  stealth_disadvantage?: boolean;
+  desc?: string[];
+  tool_category?: string;
+  vehicle_category?: string;
+  gear_category?: { name: string };
+}
+
 export interface ReferenceItem {
   index: string;
   name: string;
@@ -67,6 +95,43 @@ export async function fetchMonsters(): Promise<MonsterSummary[]> {
 export async function fetchMonsterDetail(index: string): Promise<MonsterDetail> {
   const response = await fetch(`${BASE_URL}/monsters/${index}`);
   if (!response.ok) throw new Error(`Failed to fetch monster: ${index}`);
+  return response.json();
+}
+
+export async function fetchEquipment(): Promise<EquipmentSummary[]> {
+  const query = `
+    query {
+      equipments(limit: 500) {
+        index
+        name
+        equipment_category {
+          name
+          index
+        }
+      }
+    }
+  `;
+
+  const response = await fetch(GRAPHQL_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!response.ok) {
+    // Fallback to REST if GraphQL fails
+    const restResponse = await fetch(`${BASE_URL}/equipment`);
+    const data = await restResponse.json();
+    return data.results;
+  }
+  
+  const result = await response.json();
+  return result.data.equipments;
+}
+
+export async function fetchEquipmentDetail(index: string): Promise<EquipmentDetail> {
+  const response = await fetch(`${BASE_URL}/equipment/${index}`);
+  if (!response.ok) throw new Error(`Failed to fetch equipment: ${index}`);
   return response.json();
 }
 

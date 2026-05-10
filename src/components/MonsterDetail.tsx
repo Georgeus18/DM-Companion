@@ -23,48 +23,59 @@ export const MonsterDetail: React.FC<MonsterDetailProps> = ({ monster }) => {
       </header>
 
       <div className="stats-row">
-        <div className="stat-box">
-          <Shield size={20} />
+        <div className="stat-box ac">
+          <Shield size={24} />
           <div className="stat-content">
             <span className="label">Armor Class</span>
             <span className="value">{monster.armor_class[0].value}</span>
           </div>
         </div>
-        <div className="stat-box">
-          <Heart size={20} />
+        <div className="stat-box hp">
+          <Heart size={24} />
           <div className="stat-content">
             <span className="label">Hit Points</span>
             <span className="value">
-              {monster.hit_points} ({monster.hit_dice})
+              {monster.hit_points}
             </span>
           </div>
         </div>
-        <div className="stat-box">
-          <Zap size={20} />
+        <div className="stat-box speed">
+          <Zap size={24} />
           <div className="stat-content">
             <span className="label">Speed</span>
-            <span className="value">{Object.entries(monster.speed).map(([k, v]) => `${k} ${v}`).join(', ')}</span>
+            <span className="value">{monster.speed.walk || Object.values(monster.speed)[0]}</span>
           </div>
         </div>
       </div>
 
       <div className="ability-scores">
-        {['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'].map((ability) => {
-          const score = (monster as any)[ability];
+        {(['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'] as const).map((ability) => {
+          const score = monster[ability];
           return (
             <div key={ability} className="ability">
               <span className="name">{ability.slice(0, 3).toUpperCase()}</span>
               <span className="score">{score}</span>
-              <span className="modifier">({formatModifier(score)})</span>
+              <span className="modifier">{formatModifier(score)}</span>
             </div>
           );
         })}
       </div>
 
       <section className="section">
-        <p><strong>Challenge</strong> {monster.challenge_rating} ({monster.xp} XP)</p>
-        <p><strong>Senses</strong> {Object.entries(monster.senses).map(([k, v]) => `${k.replace('_', ' ')} ${v}`).join(', ')}</p>
-        <p><strong>Languages</strong> {monster.languages || '—'}</p>
+        <div className="meta-grid">
+          <div className="meta-item">
+            <strong>Challenge</strong>
+            <span className="cr-badge">{monster.challenge_rating} ({monster.xp} XP)</span>
+          </div>
+          <div className="meta-item">
+            <strong>Senses</strong>
+            <span>{Object.entries(monster.senses).map(([k, v]) => `${k.replace('_', ' ')} ${v}`).join(', ')}</span>
+          </div>
+          <div className="meta-item">
+            <strong>Languages</strong>
+            <span>{monster.languages || '—'}</span>
+          </div>
+        </div>
       </section>
 
       {monster.special_abilities && (
