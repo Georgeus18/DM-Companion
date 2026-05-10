@@ -63,6 +63,29 @@ export interface EquipmentDetail {
   gear_category?: { name: string };
 }
 
+export interface SpellSummary {
+  index: string;
+  name: string;
+  level: number;
+}
+
+export interface SpellDetail {
+  index: string;
+  name: string;
+  desc: string[];
+  higher_level?: string[];
+  range: string;
+  components: string[];
+  material?: string;
+  ritual: boolean;
+  duration: string;
+  concentration: boolean;
+  casting_time: string;
+  level: number;
+  school: { name: string };
+  classes: { name: string }[];
+}
+
 export interface ReferenceItem {
   index: string;
   name: string;
@@ -130,6 +153,19 @@ export async function fetchEquipment(): Promise<EquipmentSummary[]> {
 export async function fetchEquipmentDetail(index: string): Promise<EquipmentDetail> {
   const response = await fetch(`${BASE_URL}/equipment/${index}`);
   if (!response.ok) throw new Error(`Failed to fetch equipment: ${index}`);
+  return response.json();
+}
+
+export async function fetchSpells(): Promise<SpellSummary[]> {
+  const response = await fetch(`${BASE_URL}/spells`);
+  if (!response.ok) throw new Error('Failed to fetch spells');
+  const data = await response.json();
+  return data.results;
+}
+
+export async function fetchSpellDetail(index: string): Promise<SpellDetail> {
+  const response = await fetch(`${BASE_URL}/spells/${index}`);
+  if (!response.ok) throw new Error(`Failed to fetch spell: ${index}`);
   return response.json();
 }
 

@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react';
-import { fetchMonsters, fetchMonsterDetail, fetchEquipment, fetchEquipmentDetail } from './services/api';
-import type { MonsterSummary, MonsterDetail as MonsterDetailType, EquipmentSummary, EquipmentDetail as EquipmentDetailType } from './services/api';
+import { fetchMonsters, fetchMonsterDetail, fetchEquipment, fetchEquipmentDetail, fetchSpells, fetchSpellDetail } from './services/api';
+import type { MonsterSummary, MonsterDetail as MonsterDetailType, EquipmentSummary, EquipmentDetail as EquipmentDetailType, SpellSummary, SpellDetail as SpellDetailType } from './services/api';
 import { MonsterList } from './components/MonsterList';
 import { MonsterDetail } from './components/MonsterDetail';
 import { EquipmentList } from './components/EquipmentList';
 import { EquipmentDetail } from './components/EquipmentDetail';
+import { SpellList } from './components/SpellList';
+import { SpellDetail } from './components/SpellDetail';
 import { CharacterManager } from './components/CharacterManager';
-import { BookOpen, Users, Sword } from 'lucide-react';
+import { BookOpen, Users, Sword, Sparkles } from 'lucide-react';
 import './App.css';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'bestiary' | 'characters' | 'armory'>('bestiary');
+  const [activeTab, setActiveTab] = useState<'bestiary' | 'characters' | 'armory' | 'spells'>('bestiary');
   const [monsters, setMonsters] = useState<MonsterSummary[]>([]);
   const [selectedMonster, setSelectedMonster] = useState<MonsterDetailType | null>(null);
   const [equipment, setEquipment] = useState<EquipmentSummary[]>([]);
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentDetailType | null>(null);
+  const [spells, setSpells] = useState<SpellSummary[]>([]);
+  const [selectedSpell, setSelectedSpell] = useState<SpellDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +48,20 @@ function App() {
           setLoading(false);
         });
     }
-  }, [activeTab, monsters.length, equipment.length]);
+
+    if (activeTab === 'spells' && spells.length === 0) {
+      setLoading(true);
+      fetchSpells()
+        .then((data) => {
+          setSpells(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setLoading(false);
+        });
+    }
+  }, [activeTab, monsters.length, equipment.length, spells.length]);
 
   const handleSelectMonster = async (index: string) => {
     try {
@@ -72,6 +89,19 @@ function App() {
     }
   };
 
+  const handleSelectSpell = async (index: string) => {
+    try {
+      setLoading(true);
+      const detail = await fetchSpellDetail(index);
+      setSelectedSpell(detail);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load spell details');
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="app-container">
       <aside className="sidebar">
@@ -86,6 +116,13 @@ function App() {
           >
             <BookOpen size={20} />
             <span>Bestiary</span>
+          </button>
+          <button 
+            className={`nav-item ${activeTab === 'spells' ? 'active' : ''}`}
+            onClick={() => setActiveTab('spells')}
+          >
+            <Sparkles size={20} />
+            <span>Spells</span>
           </button>
           <button 
             className={`nav-item ${activeTab === 'armory' ? 'active' : ''}`}
@@ -116,6 +153,14 @@ function App() {
             equipment={equipment} 
             onSelect={handleSelectEquipment} 
             selectedIndex={selectedEquipment?.index}
+          />
+        )}
+
+        {activeTab === 'spells' && (
+          <SpellList 
+            spells={spells} 
+            onSelect={handleSelectSpell} 
+            selectedIndex={selectedSpell?.index}
           />
         )}
       </aside>
@@ -150,6 +195,22 @@ function App() {
               <div className="empty-state">
                 <h2>Select an item to view details</h2>
                 <p>Use the list on the left to browse the SRD equipment.</p>
+              </div>
+            )}
+          </>
+        ) : activeTab === 'spells' ? (
+          <>
+            {error && <div className="error-message">{error}</div>}
+            {loading && !selectedSpell ? (
+              <div className="loading">Loading spells...</div>
+            ) : selectedSpell ? (
+              <div className={loading ? 'loading-overlay' : ''}>
+                <SpellDetail spell={selectedSpell} />
+              </div>
+            ) : (
+              <div className="empty-state">
+                <h2>Select a spell to view details</h2>
+                <p>Use the list on the left to browse the SRD spells.</p>
               </div>
             )}
           </>
