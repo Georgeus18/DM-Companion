@@ -99,34 +99,32 @@ export async function fetchMonsterDetail(index: string): Promise<MonsterDetail> 
 }
 
 export async function fetchEquipment(): Promise<EquipmentSummary[]> {
-  const query = `
-    query {
-      equipments(limit: 500) {
-        index
-        name
-        equipment_category {
-          name
-          index
-        }
-      }
-    }
-  `;
+  const categories = ['weapon', 'armor', 'adventuring-gear', 'tools', 'mounts-and-vehicles'];
+  
+  try {
+    const categoryPromises = categories.map(async (catIndex) => {
+      const response = await fetch(`${BASE_URL}/equipment-categories/${catIndex}`);
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data.equipment.map((item: any) => ({
+        ...item,
+        equipment_category: { index: catIndex, name: data.name }
+      }));
+    });
 
-  const response = await fetch(GRAPHQL_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query }),
-  });
-
-  if (!response.ok) {
-    // Fallback to REST if GraphQL fails
-    const restResponse = await fetch(`${BASE_URL}/equipment`);
-    const data = await restResponse.json();
+    const results = await Promise.all(categoryPromises);
+    const flatResults = results.flat();
+    
+    // Remove duplicates just in case some items appear in multiple categories
+    const uniqueResults = Array.from(new Map(flatResults.map(item => [item.index, item])).values());
+    
+    return uniqueResults;
+  } catch (error) {
+    console.error('Failed to fetch equipment by categories:', error);
+    const response = await fetch(`${BASE_URL}/equipment`);
+    const data = await response.json();
     return data.results;
   }
-  
-  const result = await response.json();
-  return result.data.equipments;
 }
 
 export async function fetchEquipmentDetail(index: string): Promise<EquipmentDetail> {
