@@ -130,10 +130,13 @@ function App() {
 
   return (
     <div className="app-container">
-      <aside className="sidebar">
-        <header className="app-header">
-          <h1>DM Companion</h1>
-        </header>
+      <header className="app-top-bar">
+        <div className="app-header">
+          <h1>
+            DM Companion
+            <span>Dungeon Master Toolset</span>
+          </h1>
+        </div>
 
         <nav className="app-nav">
           <button 
@@ -172,103 +175,103 @@ function App() {
             <span>Encounter</span>
           </button>
         </nav>
+      </header>
 
-        {activeTab === 'bestiary' && (
-          <MonsterList 
-            monsters={monsters} 
-            onSelect={handleSelectMonster} 
-            selectedIndex={selectedMonster?.index}
-            encounterMonsters={encounterMonsters}
-            onToggleEncounter={toggleMonsterInEncounter}
-          />
-        )}
-
-        {activeTab === 'armory' && (
-          <EquipmentList 
-            equipment={equipment} 
-            onSelect={handleSelectEquipment} 
-            selectedIndex={selectedEquipment?.index}
-          />
-        )}
-
-        {activeTab === 'spells' && (
-          <SpellList 
-            spells={spells} 
-            onSelect={handleSelectSpell} 
-            selectedIndex={selectedSpell?.index}
-          />
-        )}
-
-        {activeTab === 'characters' && (
-          <div className="sidebar-selection-info">
-            <p>{encounterCharacters.length} characters selected</p>
-          </div>
-        )}
-      </aside>
-
-      <main className="content">
-        {activeTab === 'bestiary' ? (
-          <>
-            {error && <div className="error-message">{error}</div>}
-            {loading && !selectedMonster ? (
-              <div className="loading">Loading monsters...</div>
-            ) : selectedMonster ? (
-              <div className={loading ? 'loading-overlay' : ''}>
-                <MonsterDetail monster={selectedMonster} />
-              </div>
-            ) : (
-              <div className="empty-state">
-                <h2>Select a monster to view details</h2>
-                <p>Use the list on the left to browse the SRD monsters.</p>
-              </div>
+      <div className="app-body">
+        {['bestiary', 'spells', 'armory'].includes(activeTab) && (
+          <aside className="sidebar">
+            {activeTab === 'bestiary' && (
+              <MonsterList 
+                monsters={monsters} 
+                onSelect={handleSelectMonster} 
+                selectedIndex={selectedMonster?.index}
+                encounterMonsters={encounterMonsters}
+                onToggleEncounter={toggleMonsterInEncounter}
+              />
             )}
-          </>
-        ) : activeTab === 'armory' ? (
-          <>
-            {error && <div className="error-message">{error}</div>}
-            {loading && !selectedEquipment ? (
-              <div className="loading">Loading armory...</div>
-            ) : selectedEquipment ? (
-              <div className={loading ? 'loading-overlay' : ''}>
-                <EquipmentDetail item={selectedEquipment} />
-              </div>
-            ) : (
-              <div className="empty-state">
-                <h2>Select an item to view details</h2>
-                <p>Use the list on the left to browse the SRD equipment.</p>
-              </div>
+
+            {activeTab === 'armory' && (
+              <EquipmentList 
+                equipment={equipment} 
+                onSelect={handleSelectEquipment} 
+                selectedIndex={selectedEquipment?.index}
+              />
             )}
-          </>
-        ) : activeTab === 'spells' ? (
-          <>
-            {error && <div className="error-message">{error}</div>}
-            {loading && !selectedSpell ? (
-              <div className="loading">Loading spells...</div>
-            ) : selectedSpell ? (
-              <div className={loading ? 'loading-overlay' : ''}>
-                <SpellDetail spell={selectedSpell} />
-              </div>
-            ) : (
-              <div className="empty-state">
-                <h2>Select a spell to view details</h2>
-                <p>Use the list on the left to browse the SRD spells.</p>
-              </div>
+
+            {activeTab === 'spells' && (
+              <SpellList 
+                spells={spells} 
+                onSelect={handleSelectSpell} 
+                selectedIndex={selectedSpell?.index}
+              />
             )}
-          </>
-        ) : activeTab === 'characters' ? (
-          <CharacterManager 
-            encounterCharacters={encounterCharacters}
-            onToggleEncounter={toggleCharacterInEncounter}
-          />
-        ) : (
-          <EncounterTracker 
-            characterIds={encounterCharacters}
-            monsterSummaries={encounterMonsters}
-            onRemoveCharacter={toggleCharacterInEncounter}
-            onRemoveMonster={(index) => toggleMonsterInEncounter({ index } as MonsterSummary)}
-          />
+          </aside>
         )}
-      </main>
+
+        <main className="content">
+          {activeTab === 'bestiary' ? (
+            <>
+              {error && <div className="error-message">{error}</div>}
+              {loading && !selectedMonster ? (
+                <div className="loading">Loading monsters...</div>
+              ) : selectedMonster ? (
+                <div className={loading ? 'loading-overlay' : ''}>
+                  <MonsterDetail monster={selectedMonster} />
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <h2>Select a monster to view details</h2>
+                  <p>Use the list on the left to browse the SRD monsters.</p>
+                </div>
+              )}
+            </>
+          ) : activeTab === 'armory' ? (
+            <>
+              {error && <div className="error-message">{error}</div>}
+              {loading && !selectedEquipment ? (
+                <div className="loading">Loading armory...</div>
+              ) : selectedEquipment ? (
+                <div className={loading ? 'loading-overlay' : ''}>
+                  <EquipmentDetail item={selectedEquipment} />
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <h2>Select an item to view details</h2>
+                  <p>Use the list on the left to browse the SRD equipment.</p>
+                </div>
+              )}
+            </>
+          ) : activeTab === 'spells' ? (
+            <>
+              {error && <div className="error-message">{error}</div>}
+              {loading && !selectedSpell ? (
+                <div className="loading">Loading spells...</div>
+              ) : selectedSpell ? (
+                <div className={loading ? 'loading-overlay' : ''}>
+                  <SpellDetail spell={selectedSpell} />
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <h2>Select a spell to view details</h2>
+                  <p>Use the list on the left to browse the SRD spells.</p>
+                </div>
+              )}
+            </>
+          ) : activeTab === 'characters' ? (
+            <CharacterManager 
+              encounterCharacters={encounterCharacters}
+              onToggleEncounter={toggleCharacterInEncounter}
+            />
+          ) : (
+            <EncounterTracker 
+              characterIds={encounterCharacters}
+              monsterSummaries={encounterMonsters}
+              onRemoveCharacter={toggleCharacterInEncounter}
+              onRemoveMonster={(index) => toggleMonsterInEncounter({ index } as MonsterSummary)}
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 }

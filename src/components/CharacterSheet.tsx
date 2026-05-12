@@ -150,16 +150,22 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
             </div>
           </div>
           <div className="header-meta">
-            <select name="class" value={formData.class} onChange={handleChange} required>
-              <option value="">Select Class</option>
-              {classes.map(c => <option key={c.index} value={c.name}>{c.name}</option>)}
-            </select>
+            <div className="input-with-label">
+              <label>Class</label>
+              <select name="class" value={formData.class} onChange={handleChange} required>
+                <option value="">Select Class</option>
+                {classes.map(c => <option key={c.index} value={c.name}>{c.name}</option>)}
+              </select>
+            </div>
 
             {formData.level >= 3 && subclasses.length > 0 && (
-              <select name="subclass" value={formData.subclass} onChange={handleChange}>
-                <option value="">Select Subclass</option>
-                {subclasses.map(s => <option key={s.index} value={s.name}>{s.name}</option>)}
-              </select>
+              <div className="input-with-label">
+                <label>Subclass</label>
+                <select name="subclass" value={formData.subclass} onChange={handleChange}>
+                  <option value="">Select Subclass</option>
+                  {subclasses.map(s => <option key={s.index} value={s.name}>{s.name}</option>)}
+                </select>
+              </div>
             )}
             
             <div className="input-with-label">
@@ -167,15 +173,21 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
               <input type="number" name="level" value={formData.level} onChange={handleChange} min="1" max="20" />
             </div>
 
-            <select name="race" value={formData.race} onChange={handleChange}>
-              <option value="">Select Race</option>
-              {races.map(r => <option key={r.index} value={r.name}>{r.name}</option>)}
-            </select>
+            <div className="input-with-label">
+              <label>Race</label>
+              <select name="race" value={formData.race} onChange={handleChange}>
+                <option value="">Select Race</option>
+                {races.map(r => <option key={r.index} value={r.name}>{r.name}</option>)}
+              </select>
+            </div>
 
-            <select name="alignment" value={formData.alignment} onChange={handleChange}>
-              <option value="">Select Alignment</option>
-              {alignments.map(a => <option key={a.index} value={a.name}>{a.name}</option>)}
-            </select>
+            <div className="input-with-label">
+              <label>Alignment</label>
+              <select name="alignment" value={formData.alignment} onChange={handleChange}>
+                <option value="">Select Alignment</option>
+                {alignments.map(a => <option key={a.index} value={a.name}>{a.name}</option>)}
+              </select>
+            </div>
           </div>
         </header>
 

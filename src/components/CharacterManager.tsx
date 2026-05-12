@@ -71,7 +71,14 @@ export const CharacterManager: React.FC<CharacterManagerProps> = ({
   return (
     <div className="character-manager">
       <div className="manager-header">
-        <h2>My Characters</h2>
+        <div className="header-info">
+          <h2>My Characters</h2>
+          {encounterCharacters.length > 0 && (
+            <span className="selection-badge">
+              {encounterCharacters.length} selected for encounter
+            </span>
+          )}
+        </div>
         <button className="btn-add" onClick={handleCreateNew}>
           <Plus size={18} /> New Character
         </button>
