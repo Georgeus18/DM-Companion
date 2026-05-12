@@ -3,9 +3,17 @@ import { INITIAL_ABILITY_SCORES } from '../types/character';
 import type { Character } from '../types/character';
 import { loadCharacters, addCharacter, updateCharacter, deleteCharacter } from '../services/storage';
 import { CharacterSheet } from './CharacterSheet';
-import { Plus, User, Edit2, Trash2 } from 'lucide-react';
+import { Plus, User, Users, Edit2, Trash2 } from 'lucide-react';
 
-export const CharacterManager: React.FC = () => {
+interface CharacterManagerProps {
+  encounterCharacters?: string[];
+  onToggleEncounter?: (id: string) => void;
+}
+
+export const CharacterManager: React.FC<CharacterManagerProps> = ({
+  encounterCharacters = [],
+  onToggleEncounter
+}) => {
   const [characters, setCharacters] = useState<Character[]>(() => loadCharacters());
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
 
@@ -56,6 +64,10 @@ export const CharacterManager: React.FC = () => {
     }
   };
 
+  const isCharInEncounter = (id: string) => {
+    return encounterCharacters.includes(id);
+  };
+
   return (
     <div className="character-manager">
       <div className="manager-header">
@@ -73,12 +85,24 @@ export const CharacterManager: React.FC = () => {
           </div>
         ) : (
           characters.map((char) => (
-            <div key={char.id} className="character-card" onClick={() => setEditingCharacter(char)}>
+            <div key={char.id} className={`character-card ${isCharInEncounter(char.id) ? 'in-encounter' : ''}`} onClick={() => setEditingCharacter(char)}>
               <div className="card-info">
                 <h3>{char.name || 'Unnamed Character'}</h3>
                 <p>{char.race} {char.class} (Level {char.level})</p>
               </div>
               <div className="card-actions">
+                {onToggleEncounter && (
+                  <button 
+                    className={`btn-icon ${isCharInEncounter(char.id) ? 'active' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleEncounter(char.id);
+                    }}
+                    title={isCharInEncounter(char.id) ? "Remove from Encounter" : "Add to Encounter"}
+                  >
+                    <Users size={16} />
+                  </button>
+                )}
                 <button className="btn-icon" title="Edit"><Edit2 size={16} /></button>
                 <button className="btn-icon delete" onClick={(e) => handleDelete(char.id, e)} title="Delete"><Trash2 size={16} /></button>
               </div>

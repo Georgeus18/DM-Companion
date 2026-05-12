@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, Filter, X, Sword } from 'lucide-react';
 import type { MonsterSummary } from '../services/api';
 
 interface MonsterListProps {
   monsters: MonsterSummary[];
   onSelect: (index: string) => void;
   selectedIndex?: string;
+  encounterMonsters?: MonsterSummary[];
+  onToggleEncounter?: (monster: MonsterSummary) => void;
 }
 
 const CR_VALUES = [0, 0.125, 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 30];
@@ -18,7 +20,9 @@ const MONSTER_TYPES = [
 export const MonsterList: React.FC<MonsterListProps> = ({ 
   monsters, 
   onSelect, 
-  selectedIndex
+  selectedIndex,
+  encounterMonsters = [],
+  onToggleEncounter
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -49,6 +53,10 @@ export const MonsterList: React.FC<MonsterListProps> = ({
     if (val === 0.25) return '1/4';
     if (val === 0.5) return '1/2';
     return val.toString();
+  };
+
+  const isMonsterInEncounter = (index: string) => {
+    return encounterMonsters.some(m => m.index === index);
   };
 
   return (
@@ -121,7 +129,21 @@ export const MonsterList: React.FC<MonsterListProps> = ({
                 <span className="monster-name">{monster.name}</span>
                 <span className="monster-meta">{monster.type}</span>
               </div>
-              <span className="monster-cr">CR {formatCR(monster.challenge_rating)}</span>
+              <div className="monster-actions">
+                <span className="monster-cr">CR {formatCR(monster.challenge_rating)}</span>
+                {onToggleEncounter && (
+                  <button 
+                    className={`btn-toggle-encounter ${isMonsterInEncounter(monster.index) ? 'active' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleEncounter(monster);
+                    }}
+                    title={isMonsterInEncounter(monster.index) ? "Remove from Encounter" : "Add to Encounter"}
+                  >
+                    <Sword size={14} />
+                  </button>
+                )}
+              </div>
             </div>
           ))
         ) : (

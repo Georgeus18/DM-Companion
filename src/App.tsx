@@ -8,11 +8,12 @@ import { EquipmentDetail } from './components/EquipmentDetail';
 import { SpellList } from './components/SpellList';
 import { SpellDetail } from './components/SpellDetail';
 import { CharacterManager } from './components/CharacterManager';
+import { EncounterTracker } from './components/EncounterTracker';
 import { BookOpen, Users, Sword, Sparkles } from 'lucide-react';
 import './App.css';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'bestiary' | 'characters' | 'armory' | 'spells'>('bestiary');
+  const [activeTab, setActiveTab] = useState<'bestiary' | 'characters' | 'armory' | 'spells' | 'encounter'>('bestiary');
   const [monsters, setMonsters] = useState<MonsterSummary[]>([]);
   const [selectedMonster, setSelectedMonster] = useState<MonsterDetailType | null>(null);
   const [equipment, setEquipment] = useState<EquipmentSummary[]>([]);
@@ -21,6 +22,10 @@ function App() {
   const [selectedSpell, setSelectedSpell] = useState<SpellDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Encounter state
+  const [encounterCharacters, setEncounterCharacters] = useState<string[]>([]);
+  const [encounterMonsters, setEncounterMonsters] = useState<MonsterSummary[]>([]);
 
   useEffect(() => {
     if (activeTab === 'bestiary' && monsters.length === 0) {
@@ -74,6 +79,27 @@ function App() {
       setError('Failed to load monster details');
       setLoading(false);
     }
+  };
+
+  const toggleMonsterInEncounter = (monster: MonsterSummary) => {
+    setEncounterMonsters(prev => {
+      const exists = prev.find(m => m.index === monster.index);
+      if (exists) {
+        return prev.filter(m => m.index !== monster.index);
+      } else {
+        return [...prev, monster];
+      }
+    });
+  };
+
+  const toggleCharacterInEncounter = (id: string) => {
+    setEncounterCharacters(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(cId => cId !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
   };
 
   const handleSelectEquipment = async (index: string) => {
@@ -138,6 +164,13 @@ function App() {
             <Users size={20} />
             <span>Characters</span>
           </button>
+          <button 
+            className={`nav-item ${activeTab === 'encounter' ? 'active' : ''}`}
+            onClick={() => setActiveTab('encounter')}
+          >
+            <Sword size={20} />
+            <span>Encounter</span>
+          </button>
         </nav>
 
         {activeTab === 'bestiary' && (
@@ -145,6 +178,8 @@ function App() {
             monsters={monsters} 
             onSelect={handleSelectMonster} 
             selectedIndex={selectedMonster?.index}
+            encounterMonsters={encounterMonsters}
+            onToggleEncounter={toggleMonsterInEncounter}
           />
         )}
 
@@ -162,6 +197,12 @@ function App() {
             onSelect={handleSelectSpell} 
             selectedIndex={selectedSpell?.index}
           />
+        )}
+
+        {activeTab === 'characters' && (
+          <div className="sidebar-selection-info">
+            <p>{encounterCharacters.length} characters selected</p>
+          </div>
         )}
       </aside>
 
@@ -214,8 +255,18 @@ function App() {
               </div>
             )}
           </>
+        ) : activeTab === 'characters' ? (
+          <CharacterManager 
+            encounterCharacters={encounterCharacters}
+            onToggleEncounter={toggleCharacterInEncounter}
+          />
         ) : (
-          <CharacterManager />
+          <EncounterTracker 
+            characterIds={encounterCharacters}
+            monsterSummaries={encounterMonsters}
+            onRemoveCharacter={toggleCharacterInEncounter}
+            onRemoveMonster={(index) => toggleMonsterInEncounter({ index } as MonsterSummary)}
+          />
         )}
       </main>
     </div>
