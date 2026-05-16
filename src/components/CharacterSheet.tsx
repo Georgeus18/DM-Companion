@@ -4,6 +4,7 @@ import type { Character } from '../types/character';
 import { fetchClasses, fetchRaces, fetchAlignments, fetchSubclasses, fetchInteractiveSpells } from '../services/api';
 import type { ReferenceItem, SpellInteractive } from '../services/api';
 import { Shield, Heart, Zap, Save, X } from 'lucide-react';
+import { NumberInput } from './NumberInput';
 
 interface CharacterSheetProps {
   character: Character;
@@ -120,8 +121,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
     return (
       <div className="ability-score-box" key={name}>
         <label>{label}</label>
-        <input 
-          type="number" 
+        <NumberInput 
           name={`abilityScores.${name}`} 
           value={score} 
           onChange={handleChange}
@@ -170,7 +170,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
             
             <div className="input-with-label">
               <label>Level</label>
-              <input type="number" name="level" value={formData.level} onChange={handleChange} min="1" max="20" />
+              <NumberInput name="level" value={formData.level} onChange={handleChange} min="1" max="20" />
             </div>
 
             <div className="input-with-label">
@@ -205,16 +205,16 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
             <div className="combat-row">
               <div className="combat-box accent-border">
                 <Shield size={24} color="var(--accent)" />
-                <input type="number" name="ac" value={formData.ac} onChange={handleChange} />
+                <NumberInput name="ac" value={formData.ac} onChange={handleChange} />
                 <label>Armor Class</label>
               </div>
               <div className="combat-box">
                 <Zap size={24} color="var(--text-secondary)" />
-                <input type="number" name="initiative" value={formData.initiative} onChange={handleChange} />
+                <NumberInput name="initiative" value={formData.initiative} onChange={handleChange} />
                 <label>Initiative</label>
               </div>
               <div className="combat-box">
-                <input type="number" name="speed" value={formData.speed} onChange={handleChange} />
+                <NumberInput name="speed" value={formData.speed} onChange={handleChange} />
                 <label>Speed</label>
               </div>
             </div>
@@ -225,15 +225,13 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
                 <span>Max Capacity: {formData.hpMax}</span>
               </div>
               <div className="hp-inputs">
-                <input 
-                  type="number" 
+                <NumberInput 
                   name="hpCurrent" 
                   value={formData.hpCurrent} 
                   onChange={handleChange} 
                 />
                 <span className="hp-divider">/</span>
-                <input 
-                  type="number" 
+                <NumberInput 
                   name="hpMax" 
                   value={formData.hpMax} 
                   onChange={handleChange} 
@@ -268,8 +266,7 @@ export const CharacterSheet: React.FC<CharacterSheetProps> = ({ character, onSav
                 {['cp', 'sp', 'ep', 'gp', 'pp'].map(curr => (
                   <div className="currency-item" key={curr}>
                     <label>{curr.toUpperCase()}</label>
-                    <input 
-                      type="number" 
+                    <NumberInput 
                       name={`currency.${curr}`} 
                       value={(formData.currency as any)[curr]} 
                       onChange={handleChange} 

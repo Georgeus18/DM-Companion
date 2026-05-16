@@ -127,10 +127,12 @@ export const MonsterList: React.FC<MonsterListProps> = ({
             >
               <div className="monster-info">
                 <span className="monster-name">{monster.name}</span>
-                <span className="monster-meta">{monster.type}</span>
+                <div className="monster-details">
+                  <span className="monster-meta">{monster.type}</span>
+                  <span className="monster-cr">CR {formatCR(monster.challenge_rating)}</span>
+                </div>
               </div>
               <div className="monster-actions">
-                <span className="monster-cr">CR {formatCR(monster.challenge_rating)}</span>
                 {onToggleEncounter && (
                   <button 
                     className={`btn-toggle-encounter ${isMonsterInEncounter(monster.index) ? 'active' : ''}`}

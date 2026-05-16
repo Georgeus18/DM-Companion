@@ -111,8 +111,7 @@ body {
 
 .sidebar {
   width: 320px;
-  background-color: #050505;
-  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h100v100H0z' fill='%23050505'/%3E%3Cpath d='M10 0v100M30 0v100M50 0v100M70 0v100M90 0v100' stroke='%23111' stroke-width='1'/%3E%3C/svg%3E");
+  background-color: #1c1c1c;
   border-right: 4px solid #111;
   display: flex;
   flex-direction: column;
@@ -278,6 +277,28 @@ body {
   background-color: rgba(212, 175, 55, 0.1);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.monster-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.monster-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.monster-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .monster-name {
@@ -605,6 +626,62 @@ body {
   margin-bottom: 8px;
 }
 
+/* Hide number input spinners globally */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Custom Number Input Component */
+.custom-number-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.custom-number-input .spin-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: absolute;
+  right: 0;
+  height: 100%;
+  justify-content: center;
+}
+
+.custom-number-input .spin-btn {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  height: 20px;
+  width: 20px;
+}
+
+.custom-number-input .spin-btn:hover {
+  background: var(--accent);
+  color: black;
+  box-shadow: 0 0 10px var(--accent-glow);
+  transform: scale(1.1);
+}
+
+.custom-number-input .spin-btn:active {
+  transform: scale(0.95);
+}
+
 .ability-score-box input {
   width: 100%;
   background: transparent;
@@ -615,13 +692,6 @@ body {
   text-align: center;
   outline: none;
   text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-}
-
-/* Hide number input spinners */
-.ability-score-box input::-webkit-outer-spin-button,
-.ability-score-box input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
 }
 
 .ability-score-box .mod-display {
